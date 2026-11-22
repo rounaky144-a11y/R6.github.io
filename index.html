@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>बॉडी बिल्डर — रोज़ की कसरत और रिज़ल्ट</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1116;--card:#171b23;--c2:#1f2430;--line:#2a3040;--tx:#eef1f6;--mut:#9aa3b5;--g:#22c55e;--r:#ef4444;--b:#3b82f6;--a:#f59e0b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:'Noto Sans Devanagari',system-ui,sans-serif;font-size:15px;line-height:1.5}
+#app{max-width:480px;margin:0 auto;padding:14px 14px 96px}
+h1{font-size:20px;margin:4px 0;font-weight:800}
+h2{font-size:16px;margin:0 0 6px;font-weight:700}
+.sub{color:var(--mut);font-size:13px}.note{color:var(--mut);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0}
+.row{display:flex;gap:8px;align-items:center}.sp{justify-content:space-between}.wrap{flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{font:inherit;color:var(--tx);background:var(--c2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
+button:active{transform:scale(.98)}
+button.pri{background:var(--g);color:#06210f;border-color:var(--g);font-weight:700}
+button.sm{padding:6px 10px;font-size:13px;border-radius:10px}
+button.on{background:var(--g);color:#06210f;border-color:var(--g);font-weight:700}
+input[type=number],textarea{font:inherit;color:var(--tx);background:var(--c2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--r)}
+label.f{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin:8px 0}
+.chips button{white-space:nowrap;flex:0 0 auto}
+.c3d{width:100%;aspect-ratio:660/380;border-radius:14px;border:1px solid var(--line);touch-action:pan-y;display:block;cursor:grab}.cap3{font-size:11px;color:var(--mut);text-align:center;margin-top:4px}.figs{display:none}
+.figs svg{flex:1;background:#12161d;border-radius:12px;border:1px solid var(--line);min-width:0}
+.figs .cap{font-size:11px;color:var(--mut);text-align:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--c2);border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:13px;margin:2px}
+.chip b{color:var(--r);cursor:pointer}
+.bar{height:8px;background:var(--c2);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:var(--g)}
+details summary{cursor:pointer;color:var(--b);font-size:13px;margin-top:6px}
+details ul{margin:6px 0 0;padding-left:20px;font-size:14px}
+a.lk{color:var(--b);font-size:13px;text-decoration:none}
+.badge{display:inline-block;border-radius:99px;padding:2px 10px;font-weight:700;font-size:13px}
+.gE{background:#16a34a;color:#fff}.gG{background:rgba(34,197,94,.2);color:#86efac;border:1px solid var(--g)}
+.gA{background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid var(--a)}.gB{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid var(--r)}
+.big{font-size:30px;font-weight:800;line-height:1.15}
+.res{border-width:2px}
+.resE,.resG{border-color:var(--g)}.resA{border-color:var(--a)}.resB{border-color:var(--r)}
+nav{position:fixed;left:0;right:0;bottom:0;background:rgba(14,17,22,.97);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav .in{display:flex;max-width:480px;width:100%}
+nav button{flex:1;border:0;border-radius:0;background:transparent;color:var(--mut);padding:8px 2px;font-size:12px}
+nav button span{display:block;font-size:20px}nav button.act{color:var(--g);font-weight:700}
+ul.t{margin:6px 0 0;padding-left:20px}ul.t li{margin:3px 0}
+.hist{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav><div class="in">
+ <button data-tab="ex"><span>🏋️</span>कसरत</button>
+ <button data-tab="health"><span>🩺</span>सेहत</button>
+ <button data-tab="res"><span>✅</span>रिज़ल्ट</button>
+ <button data-tab="hist"><span>📅</span>इतिहास</button>
+</div></nav>
+<script>
+/* ===== helpers ===== */
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const keyOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseKey=k=>{const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)};
+const MONTHS=['जनवरी','फ़रवरी','मार्च','अप्रैल','मई','जून','जुलाई','अगस्त','सितंबर','अक्टूबर','नवंबर','दिसंबर'];
+const fmt=k=>{const d=parseKey(k);return d.getDate()+' '+MONTHS[d.getMonth()]};
+const sum=a=>(a||[]).reduce((x,y)=>x+(+y||0),0);
+const num=v=>{const n=parseFloat(v);return isFinite(n)?n:null};
+const TODAY=keyOf(new Date());
+
+/* ===== exercise data (poses: head,neck,pelvis,elbow1,hand1,elbow2,hand2,knee1,foot1,knee2,foot2) ===== */
+const STAND=[[60,15],[60,24],[60,52],[58,38],[57,52],[62,38],[63,52],[58,72],[57,92],[62,72],[63,92]];
+const PLANK_UP=[[101,40],[92,46],[55,65],[92,68],[92,90],[92,68],[92,90],[30,80],[12,90],[30,80],[12,90]];
+const GROUPS={chest:'छाती',back:'पीठ',shoulder:'कंधे',arms:'हाथ',legs:'पैर',core:'पेट / कोर',cardio:'कार्डियो'};
+const EX=[
+{id:'pushup',n:'पुशअप',en:'push up',g:'chest',m:'छाती, कंधे, ट्राइसेप',sets:3,reps:12,u:'बार',eq:'कोई सामान नहीं',
+ st:['हथेलियाँ कंधे की चौड़ाई पर ज़मीन पर रखो।','सिर से पैर तक शरीर सीधी लाइन में रखो।','छाती ज़मीन के पास तक नीचे जाओ, फिर धक्का देकर ऊपर आओ।'],tip:'कमर लटकने या ऊपर उठने न दो।',
+ A:PLANK_UP,B:[[101,67],[92,72],[55,79],[80,82],[92,90],[80,82],[92,90],[30,85],[12,90],[30,85],[12,90]]},
+{id:'pike',n:'पाइक पुशअप',en:'pike push up',g:'shoulder',m:'कंधे, ट्राइसेप',sets:3,reps:8,u:'बार',eq:'कोई सामान नहीं',
+ st:['कूल्हे ऊपर उठाकर उल्टे V की शक्ल बनाओ।','सिर को हाथों के बीच ज़मीन की तरफ़ झुकाओ।','धक्का देकर वापस ऊपर आओ।'],tip:'पैर सीधे रखो, कंधे से धक्का दो।',
+ A:[[78,62],[74,58],[45,32],[80,74],[85,90],[80,74],[85,90],[30,61],[15,90],[30,61],[15,90]],B:[[88,80],[80,74],[45,38],[96,84],[85,90],[96,84],[85,90],[30,64],[15,90],[30,64],[15,90]]},
+{id:'dips',n:'बेंच डिप्स',en:'bench tricep dips',g:'arms',m:'ट्राइसेप, छाती',sets:3,reps:10,u:'बार',eq:'कुर्सी / बेंच',bench:1,
+ st:['कुर्सी के किनारे पर हाथ रखो, पैर आगे।','कूल्हे कुर्सी से आगे लाकर कोहनी मोड़ते हुए नीचे जाओ।','हथेलियों से दबाकर ऊपर आओ।'],tip:'कंधे कान की तरफ़ न उचकाओ।',
+ A:[[64,26],[60,36],[60,66],[54,50],[50,62],[54,50],[50,62],[86,64],[94,90],[86,64],[94,90]],B:[[64,42],[60,52],[60,80],[42,58],[50,62],[42,58],[50,62],[86,72],[94,90],[86,72],[94,90]]},
+{id:'pullup',n:'पुल-अप',en:'pull up',g:'back',m:'पीठ, बाइसेप',sets:3,reps:6,u:'बार',eq:'रॉड / बार',bar:1,
+ st:['रॉड को कंधे से थोड़ी चौड़ी पकड़ से पकड़ो और लटको।','कोहनी नीचे खींचते हुए ठुड्डी रॉड के ऊपर लाओ।','धीरे-धीरे नीचे जाओ, झटका मत दो।'],tip:'न हो सके तो पहले लटकने (हैंग) से शुरू करो।',
+ A:[[60,28],[60,36],[60,64],[54,22],[56,8],[66,22],[64,8],[56,80],[54,92],[64,80],[62,92]],B:[[60,12],[60,20],[60,48],[48,22],[56,8],[72,22],[64,8],[58,64],[52,78],[64,64],[60,78]]},
+{id:'row',n:'डंबल रो',en:'bent over dumbbell row',g:'back',m:'पीठ, बाइसेप',sets:3,reps:12,u:'बार',eq:'डंबल (या पानी की बोतल/बैग)',
+ st:['घुटने हल्के मोड़कर आगे झुको, पीठ सीधी।','डंबल को कमर की तरफ़ खींचो, कंधे की हड्डियाँ पास लाओ।','धीरे से नीचे छोड़ो।'],tip:'पीठ गोल मत करो।',
+ A:[[86,40],[78,44],[50,58],[80,60],[80,76],[80,60],[80,76],[48,76],[45,92],[48,76],[45,92]],B:[[86,40],[78,44],[50,58],[66,54],[74,62],[66,54],[74,62],[48,76],[45,92],[48,76],[45,92]]},
+{id:'superman',n:'सुपरमैन',en:'superman exercise',g:'back',m:'कमर, पीठ',sets:3,reps:12,u:'बार',eq:'कोई सामान नहीं',
+ st:['पेट के बल लेटो, हाथ आगे फैलाओ।','हाथ-पैर और सीना एक साथ ऊपर उठाओ, 2 सेकंड रुको।','धीरे से नीचे आओ।'],tip:'गर्दन ज़्यादा पीछे मत मोड़ो।',
+ A:[[95,88],[88,88],[50,88],[102,88],[114,88],[102,88],[114,88],[28,88],[8,88],[28,88],[8,88]],B:[[95,80],[88,82],[50,88],[102,74],[114,66],[102,74],[114,66],[28,80],[8,72],[28,80],[8,72]]},
+{id:'curl',n:'बाइसेप कर्ल',en:'dumbbell bicep curl',g:'arms',m:'बाइसेप (बाजू)',sets:3,reps:12,u:'बार',eq:'डंबल (या पानी की बोतल/बैग)',
+ st:['सीधे खड़े होकर कोहनी शरीर के पास रखो।','वज़न कंधे की तरफ़ मोड़कर उठाओ।','धीरे से नीचे लाओ।'],tip:'शरीर को झटका मत दो।',
+ A:[[60,15],[60,24],[60,52],[60,38],[60,52],[60,38],[60,52],[58,72],[57,92],[62,72],[63,92]],B:[[60,15],[60,24],[60,52],[60,38],[70,28],[60,38],[70,28],[58,72],[57,92],[62,72],[63,92]]},
+{id:'lateral',front:1,n:'लेटरल रेज़',en:'dumbbell lateral raise',g:'shoulder',m:'कंधे (चौड़े कंधे)',sets:3,reps:12,u:'बार',eq:'हल्के डंबल / बोतल',
+ st:['हाथ बगल में, हल्का वज़न पकड़ो।','हाथ बगल से कंधे की ऊँचाई तक उठाओ।','धीरे से नीचे लाओ।'],tip:'हल्का वज़न लो, झटका नहीं।',
+ A:[[60,15],[60,24],[60,52],[52,38],[50,52],[68,38],[70,52],[54,72],[52,92],[66,72],[68,92]],B:[[60,15],[60,24],[60,52],[42,26],[28,26],[78,26],[92,26],[54,72],[52,92],[66,72],[68,92]]},
+{id:'squat',n:'स्क्वाट',en:'bodyweight squat',g:'legs',m:'जाँघ, कूल्हे',sets:3,reps:15,u:'बार',eq:'कोई सामान नहीं',
+ st:['पैर कंधे की चौड़ाई पर, हाथ आगे।','कुर्सी पर बैठने जैसे कूल्हे पीछे-नीचे ले जाओ।','एड़ियों से दबाकर ऊपर आओ।'],tip:'घुटने अंदर की तरफ़ न गिरने दो।',
+ A:[[60,15],[60,24],[60,52],[68,34],[78,34],[68,34],[78,34],[60,72],[60,92],[60,72],[60,92]],B:[[54,36],[52,44],[34,70],[64,48],[76,46],[64,48],[76,46],[66,70],[58,92],[66,70],[58,92]]},
+{id:'lunge',n:'लंज',en:'lunge',g:'legs',m:'जाँघ, कूल्हे',sets:3,reps:10,u:'हर पैर',eq:'कोई सामान नहीं',
+ st:['एक पैर आगे बड़ा कदम रखो।','दोनों घुटने 90° तक मोड़कर नीचे जाओ।','आगे वाले पैर से धक्का देकर वापस आओ।'],tip:'आगे का घुटना पंजे से आगे न जाए।',
+ A:STAND,B:[[58,28],[58,38],[56,66],[58,52],[58,64],[58,52],[58,64],[80,72],[80,92],[40,84],[24,92]]},
+{id:'calf',n:'काफ़ रेज़',en:'calf raise',g:'legs',m:'पिंडली',sets:3,reps:20,u:'बार',eq:'कोई सामान नहीं',
+ st:['सीधे खड़े हो जाओ।','पंजों पर ऊपर उठो, 1 सेकंड रुको।','धीरे से नीचे आओ।'],tip:'दीवार का सहारा ले सकते हो।',
+ A:STAND,B:[[60,9],[60,18],[60,46],[58,32],[57,46],[62,32],[63,46],[58,66],[58,86],[62,66],[63,86]]},
+{id:'bridge',n:'ग्लूट ब्रिज',en:'glute bridge',g:'legs',m:'कूल्हे, हैमस्ट्रिंग',sets:3,reps:15,u:'बार',eq:'कोई सामान नहीं',
+ st:['पीठ के बल लेटो, घुटने मुड़े, पैर ज़मीन पर।','कूल्हे ऊपर उठाओ जब तक कंधे-कूल्हे-घुटने सीधी लाइन में हों।','1 सेकंड रुककर नीचे आओ।'],tip:'कमर नहीं, कूल्हों से उठाओ।',
+ A:[[15,86],[22,88],[55,88],[36,90],[50,90],[36,90],[50,90],[76,66],[88,90],[76,66],[88,90]],B:[[15,86],[22,88],[55,68],[36,90],[50,90],[36,90],[50,90],[80,64],[90,90],[80,64],[90,90]]},
+{id:'plank',n:'प्लैंक',en:'plank',g:'core',m:'पूरा कोर, कंधे',sets:3,reps:40,u:'सेकंड',eq:'कोई सामान नहीं',
+ st:['कोहनी कंधे के नीचे, शरीर सीधी लाइन में।','पेट अंदर खींचकर रखो, साँस चलती रहे।','तय सेकंड तक रुको।'],tip:'कमर लटकने लगे तो रुक जाओ।',
+ A:[[100,62],[92,68],[55,76],[90,88],[102,90],[90,88],[102,90],[34,84],[12,90],[34,84],[12,90]],B:[[100,60],[92,66],[55,72],[90,88],[102,90],[90,88],[102,90],[34,82],[12,90],[34,82],[12,90]]},
+{id:'crunch',n:'क्रंच',en:'crunch',g:'core',m:'पेट (ऊपरी)',sets:3,reps:20,u:'बार',eq:'कोई सामान नहीं',
+ st:['पीठ के बल लेटो, घुटने मुड़े, हाथ सिर के पास।','पेट सिकोड़कर कंधे ज़मीन से उठाओ।','धीरे से नीचे आओ।'],tip:'गर्दन को हाथ से मत खींचो।',
+ A:[[18,82],[26,86],[55,88],[20,74],[26,78],[20,74],[26,78],[76,66],[86,90],[76,66],[86,90]],B:[[46,60],[40,70],[55,88],[44,56],[50,62],[44,56],[50,62],[76,66],[86,90],[76,66],[86,90]]},
+{id:'legraise',n:'लेग रेज़',en:'lying leg raise',g:'core',m:'पेट (निचला)',sets:3,reps:12,u:'बार',eq:'कोई सामान नहीं',
+ st:['पीठ के बल लेटो, हाथ बगल में।','सीधे पैर 90° तक ऊपर उठाओ।','धीरे-धीरे नीचे लाओ, पैर ज़मीन न छुएँ।'],tip:'कमर ज़मीन से चिपकाकर रखो।',
+ A:[[15,86],[22,88],[52,88],[34,90],[48,90],[34,90],[48,90],[78,88],[104,88],[78,88],[104,88]],B:[[15,86],[22,88],[52,88],[34,90],[48,90],[34,90],[48,90],[52,66],[52,42],[52,66],[52,42]]},
+{id:'climber',n:'माउंटेन क्लाइंबर',en:'mountain climbers',g:'cardio',m:'कोर, पैर, स्टैमिना',sets:3,reps:20,u:'बार',eq:'कोई सामान नहीं',
+ st:['पुशअप वाली पोज़ीशन में आओ।','एक-एक घुटना तेज़ी से छाती की तरफ़ लाओ।','साँस चलती रहे।'],tip:'कूल्हे ऊपर न उठाओ।',
+ A:[[101,40],[92,46],[55,65],[92,68],[92,90],[92,68],[92,90],[30,80],[12,90],[72,68],[62,80]],B:[[101,40],[92,46],[55,65],[92,68],[92,90],[92,68],[92,90],[72,68],[62,80],[30,80],[12,90]]},
+{id:'jj',front:1,n:'जंपिंग जैक',en:'jumping jacks',g:'cardio',m:'पूरा शरीर, स्टैमिना',sets:3,reps:30,u:'बार',eq:'कोई सामान नहीं',
+ st:['पैर जोड़कर खड़े हो, हाथ बगल में।','कूदकर पैर फैलाओ और हाथ सिर के ऊपर ले जाओ।','कूदकर वापस आओ।'],tip:'हल्के पंजों पर उतरो।',
+ A:[[60,15],[60,24],[60,52],[54,38],[52,52],[66,38],[68,52],[56,72],[55,92],[64,72],[65,92]],B:[[60,15],[60,24],[60,52],[48,34],[38,16],[72,34],[82,16],[48,72],[40,92],[72,72],[80,92]]},
+{id:'burpee',n:'बर्पी',en:'burpee',g:'cardio',m:'पूरा शरीर, चर्बी घटाना',sets:3,reps:8,u:'बार',eq:'कोई सामान नहीं',
+ st:['खड़े होकर नीचे झुको और हाथ ज़मीन पर रखो।','पैर पीछे कूदाकर पुशअप वाली पोज़ीशन में आओ।','पैर वापस लाकर कूदते हुए खड़े हो जाओ।'],tip:'शुरू में धीरे करो, रफ़्तार बाद में।',
+ A:STAND,B:PLANK_UP},
+{id:'rope',n:'रस्सी कूद',en:'jump rope',g:'cardio',m:'स्टैमिना, पिंडली',sets:3,reps:50,u:'कूद',eq:'रस्सी (न हो तो बिना रस्सी)',
+ st:['कलाइयों से रस्सी घुमाओ।','हल्की कूद, पंजों पर।','एक लय में कूदते रहो।'],tip:'नरम ज़मीन पर कूदो।',
+ A:[[60,15],[60,24],[60,52],[52,40],[44,52],[68,40],[76,52],[58,72],[57,92],[62,72],[63,92]],B:[[60,9],[60,18],[60,46],[52,34],[44,46],[68,34],[76,46],[58,66],[58,84],[62,66],[62,84]]}
+];
+const BAD=[['junk','जंक / बाहर का तला खाना'],['sugar','कोल्ड ड्रिंक / ज़्यादा मीठा'],['tobacco','सिगरेट / तंबाकू / गुटखा'],['alcohol','शराब'],['late','रात 12 बजे के बाद जागा']];
+const LEVELS={beg:['शुरुआती',0.7],reg:['नियमित',1],adv:['एडवांस',1.3]};
+
+/* ===== 3D character engine (real 3D geometry, rotatable, depth-sorted; no external library) ===== */
+const COL={skin:['#c68a5e','#6a3b1c','#e8b78d'],skinL:['#d29768','#7a4524','#f0c6a1'],hot:['#e2644d','#8a2616','#ffa08a'],short:['#2e3a5c','#0c1222','#6577a8'],shoe:['#f1f3f6','#5d6675','#ffffff'],hair:['#17100b','#050302','#3a2a20'],metal:['#8b93a3','#3b4150','#d8dde8'],wood:['#9a6a35','#4a2f12','#c99a5b']};
+const HLMAP={chest:['pec','delt','arm'],back:['lat','trap','waist'],shoulder:['delt','trap'],arms:['arm'],legs:['quad','calf'],core:['abs','waist'],cardio:['quad','abs','calf']};
+const VS=35, CAMD=24, PITCH=0.26;
+function rot3(v,yaw){
+  const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(PITCH),sp=Math.sin(PITCH);
+  const x1=v[0]*cy+v[2]*sy, z1=-v[0]*sy+v[2]*cy;
+  return [x1, v[1]*cp-z1*sp, v[1]*sp+z1*cp];
+}
+function poseAt(ex,u){ // u 0..1 between pose A and B
+  return ex.A.map((a,i)=>[a[0]+(ex.B[i][0]-a[0])*u,a[1]+(ex.B[i][1]-a[1])*u]);
+}
+function buildModel(ex,u,yaw){
+  const P=poseAt(ex,u), hl=new Set(HLMAP[ex.g]||[]), fr=!!ex.front, s1=fr?-1:1;
+  const C=(tag,base)=>hl.has(tag)?COL.hot:base;
+  const V=(i,z=0)=>fr?[0,(92-P[i][1])*0.1,(P[i][0]-60)*0.1]:[(P[i][0]-60)*0.1,(92-P[i][1])*0.1,z];
+  const H=V(0),N=V(1),Pv=V(2);
+  let tx=N[0]-Pv[0],ty=N[1]-Pv[1];const tl=Math.hypot(tx,ty)||1;tx/=tl;ty/=tl;
+  const f=[ty,-tx,0], w=(1-Math.abs(ty))*0.9, fhx=f[0]+tx*w, fhy=f[1]+ty*w, fhl=Math.hypot(fhx,fhy)||1, fh=[fhx/fhl,fhy/fhl,0];
+  const L=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+  const add=(a,v,k)=>[a[0]+v[0]*k,a[1]+v[1]*k,a[2]+v[2]*k];
+  const Zv=z=>[0,0,z], ax=t=>L(Pv,N,t);
+  const prim=[];
+  const cap=(a,b,r,c,bias=0)=>prim.push({t:'c',a,b,r,c,bias});
+  const sph=(p,r,c,bias=0)=>prim.push({t:'s',p,r,c,bias});
+  if(ex.bar){cap([-3.3,8.4,0],[3.3,8.4,0],.17,COL.metal);cap([-3.3,8.4,0],[-3.3,9.6,0],.12,COL.metal);cap([3.3,8.4,0],[3.3,9.6,0],.12,COL.metal)}
+  if(ex.bench){for(const z of[-.9,.9]){cap([-3.5,2.9,z],[-.6,2.9,z],.4,COL.wood)}for(const x of[-3.2,-.9])for(const z of[-.9,.9])cap([x,2.5,z],[x,0,z],.14,COL.metal)}
+  // torso: wide chest, narrow waist (V-shape), shorts
+  for(const sz of[-1,1]){
+    cap(add(ax(0),Zv(sz*.26),1),add(ax(.24),Zv(sz*.25),1),.52,COL.short,.01);
+    cap(add(ax(.18),Zv(sz*.18),1),add(ax(.52),Zv(sz*.22),1),.46,C('waist',COL.skin));
+    cap(add(ax(.46),Zv(sz*.3),1),add(ax(.9),Zv(sz*.35),1),.6,COL.skin);
+    sph(add(L(N,H,.2),Zv(sz*.4),1),.42,C('trap',COL.skin),.01);
+  }
+  const frontSeen=rot3(f,yaw)[2]>0.05, backSeen=rot3(f,yaw)[2]<-0.05;
+  if(frontSeen){
+    for(const sz of[-1,1]){
+      sph(add(add(ax(.74),f,.45),Zv(sz*.3),1),.42,C('pec',COL.skinL),.05);
+      for(const t of[.22,.34,.46])sph(add(add(ax(t),f,.4),Zv(sz*.13),1),.17,C('abs',COL.skinL),.05);
+    }
+  }
+  if(backSeen){
+    for(const sz of[-1,1]){sph(add(add(ax(.62),f,-.38),Zv(sz*.42),1),.46,C('lat',COL.skin),.05);sph(add(add(ax(.12),f,-.34),Zv(sz*.3),1),.5,COL.short,.05)}
+  }
+  cap(N,H,.28,COL.skin);
+  // arms
+  [[1,3,4],[2,5,6]].forEach(([k,ei,wi])=>{
+    const sgn=k===1?s1:-s1, sh=[N[0],N[1],sgn*.95], E=V(ei,sgn*.95), W=V(wi,sgn*.95), bias=k===1?.02:-.02;
+    sph(sh,.52,C('delt',COL.skin),bias);cap(sh,E,.36,COL.skin,bias);sph(L(sh,E,.45),.42,C('arm',COL.skin),bias+.005);
+    sph(E,.3,COL.skin,bias);cap(E,W,.29,COL.skin,bias);sph(L(E,W,.28),.34,C('arm',COL.skin),bias+.005);sph(W,.34,COL.skin,bias);
+  });
+  // legs
+  [[1,7,8],[2,9,10]].forEach(([k,ki,fi])=>{
+    const sgn=k===1?s1:-s1, hp=[Pv[0],Pv[1],sgn*.3], K=V(ki,sgn*.32), F=V(fi,sgn*.32), bias=k===1?.02:-.02;
+    sph(hp,.52,COL.short,bias);cap(hp,K,.5,COL.skin,bias);cap(hp,L(hp,K,.62),.58,COL.short,bias+.01);
+    sph(L(hp,K,.76),.5,C('quad',COL.skin),bias+.005);sph(K,.38,COL.skin,bias);
+    cap(K,F,.3,COL.skin,bias);sph(L(K,F,.28),.42,C('calf',COL.skin),bias+.005);
+    cap([F[0]-.15,F[1]+.12,F[2]],[F[0]+.95,F[1]+.12,F[2]],.34,COL.shoe,bias+.02);
+  });
+  for(const sz of[-1,1])sph(add(H,Zv(sz*.7),1),.14,COL.skin,0);
+  prim.push({t:'head',H,fh,hairC:[H[0]-fh[0]*.2,H[1]+.2-fh[1]*.2,H[2]],bias:.03});
+  return prim;
+}
+function proj(v,yaw,W,Hh){
+  const r=rot3(v,yaw), s=CAMD/(CAMD-r[2]);
+  return {x:W/2+r[0]*s*VS*(W/660), y:Hh*0.56+(4.3-r[1])*s*VS*(Hh/380)+ (r[2]*0), s:s*VS*(W/660), z:r[2]};
+}
+function drawCap(ctx,A,B,r,c){
+  const w=r*(A.s+B.s), dx=B.x-A.x, dy=B.y-A.y, L=Math.hypot(dx,dy)||1;
+  let nx=-dy/L,ny=dx/L; if(nx*-0.7+ny*-0.7<0){nx=-nx;ny=-ny}   // n points toward light (upper-left)
+  const mx=(A.x+B.x)/2,my=(A.y+B.y)/2;
+  ctx.lineCap='round';
+  ctx.strokeStyle=c[1];ctx.lineWidth=w+2;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+  const g=ctx.createLinearGradient(mx-nx*w/2,my-ny*w/2,mx+nx*w/2,my+ny*w/2);
+  g.addColorStop(0,c[1]);g.addColorStop(.35,c[0]);g.addColorStop(.72,c[2]);g.addColorStop(1,c[0]);
+  ctx.strokeStyle=g;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();
+}
+function drawSph(ctx,p,r,c){
+  const R=r*p.s, g=ctx.createRadialGradient(p.x-R*.35,p.y-R*.4,R*.1,p.x,p.y,R);
+  g.addColorStop(0,c[2]);g.addColorStop(.45,c[0]);g.addColorStop(1,c[1]);
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,R,0,7);ctx.fill();
+}
+function drawScene(cv,ex,t,yaw){
+  const ctx=cv.getContext('2d'), W=cv.width, Hh=cv.height;
+  const bg=ctx.createLinearGradient(0,0,0,Hh);bg.addColorStop(0,'#252d3b');bg.addColorStop(1,'#141922');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,Hh);
+  const u=(1-Math.cos(t*2*Math.PI/2.8))/2;
+  const P=v=>proj(v,yaw,W,Hh);
+  // floor ring + shadow (shows 3D rotation)
+  ctx.strokeStyle='#2f384a';ctx.lineWidth=2;
+  for(const R of [3,6.2]){ctx.beginPath();for(let i=0;i<=48;i++){const a=i/48*Math.PI*2,q=P([Math.cos(a)*R,0,Math.sin(a)*R]);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y)}ctx.stroke()}
+  ctx.strokeStyle='#2f384a';ctx.lineWidth=1.5;for(let i=0;i<8;i++){const a=i/8*Math.PI*2,q1=P([Math.cos(a)*3,0,Math.sin(a)*3]),q2=P([Math.cos(a)*6.2,0,Math.sin(a)*6.2]);ctx.beginPath();ctx.moveTo(q1.x,q1.y);ctx.lineTo(q2.x,q2.y);ctx.stroke()}
+  const c0=P([0,0,0]);ctx.save();ctx.translate(c0.x,c0.y);ctx.scale(1,.38);const sg=ctx.createRadialGradient(0,0,0,0,0,4.6*c0.s);sg.addColorStop(0,'rgba(0,0,0,.55)');sg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=sg;ctx.beginPath();ctx.arc(0,0,4.6*c0.s,0,7);ctx.fill();ctx.restore();
+  // primitives
+  const items=buildModel(ex,u,yaw).map(p=>{
+    if(p.t==='c'){const A=P(p.a),B=P(p.b);return {z:(A.z+B.z)/2+p.bias,f:()=>drawCap(ctx,A,B,p.r,p.c)}}
+    if(p.t==='s'){const A=P(p.p);return {z:A.z+p.bias,f:()=>drawSph(ctx,A,p.r,p.c)}}
+    const A=P(p.H),Hr=P(p.hairC), fr=rot3(p.fh,yaw), facing=fr[2]>0;
+    return {z:A.z+p.bias,f:()=>{
+      if(facing)drawSph(ctx,Hr,.8,COL.hair);
+      drawSph(ctx,A,.74,COL.skin);
+      if(!facing)drawSph(ctx,Hr,.8,COL.hair);
+      if(fr[2]>-.15){
+        for(const sgn of[-1,1]){const q=P([p.H[0]+p.fh[0]*.66,p.H[1]+p.fh[1]*.66+.08,p.H[2]+sgn*.27]);ctx.fillStyle='#111827';ctx.beginPath();ctx.arc(q.x,q.y,.1*q.s,0,7);ctx.fill()}
+        drawSph(ctx,P([p.H[0]+p.fh[0]*.74,p.H[1]+p.fh[1]*.74-.05,p.H[2]]),.13,COL.skin);
+      }
+    }}
+  });
+  items.sort((a,b)=>a.z-b.z).forEach(i=>i.f());
+}
+/* animation loop: only canvases on screen are drawn */
+const yawBy={}, dragged={}, visible=new Set();
+let io=null, raf=0;
+function setup3D(){
+  if(io)io.disconnect(); visible.clear();
+  io=new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?visible.add(e.target):visible.delete(e.target)),{rootMargin:'120px'});
+  document.querySelectorAll('canvas.c3d').forEach(cv=>{
+    io.observe(cv);
+    const id=cv.dataset.ex; let down=false,lx=0;
+    cv.addEventListener('pointerdown',e=>{down=true;lx=e.clientX;dragged[id]=true;if(yawBy[id]===undefined)yawBy[id]=-0.55;try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+    cv.addEventListener('pointermove',e=>{if(!down)return;yawBy[id]+=(e.clientX-lx)*0.012;lx=e.clientX});
+    const up=()=>{down=false};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    drawOne(cv,performance.now()/1000);
+  });
+  if(!raf)raf=requestAnimationFrame(loop);
+}
+function drawOne(cv,t){
+  const ex=EX.find(e=>e.id===cv.dataset.ex); if(!ex)return;
+  const id=ex.id, yaw=dragged[id]?yawBy[id]:-0.55+0.5*Math.sin(t*0.7);
+  drawScene(cv,ex,t,yaw);
+}
+function loop(){
+  const t=performance.now()/1000;
+  visible.forEach(cv=>{if(cv.isConnected)drawOne(cv,t);else visible.delete(cv)});
+  raf=requestAnimationFrame(loop);
+}
+
+/* ===== state + storage (instant local, cloud in background) ===== */
+const LS='gym_app2_v1';
+let S={level:'reg',weight:60,days:{},updatedAt:0}, tab='ex', grp='all', viewRes=null, cloud=null, cloudOk=null, saveT=null;
+try{const raw=localStorage.getItem(LS);if(raw){const d=JSON.parse(raw);if(d&&d.days)S=Object.assign(S,d)}}catch(e){}
+const day=(k=TODAY)=>S.days[k]||(S.days[k]={ex:{},water:0,sleep:0,protein:0,weight:null,bad:{},submitted:false,result:null});
+function save(){
+  S.updatedAt=Date.now();
+  clearTimeout(saveT);
+  saveT=setTimeout(async()=>{
+    const snap=JSON.parse(JSON.stringify(S));
+    try{localStorage.setItem(LS,JSON.stringify(snap))}catch(e){}
+    if(cloud){try{await cloud.set(snap);cloudOk=true}catch(e){cloudOk=false}}
+    const el=document.getElementById('sv');if(el)el.textContent=badge();
+  },400);
+}
+const badge=()=>cloud?(cloudOk===false?'⚠️ क्लाउड सेव नहीं हुआ (फोन में सेव है)':'☁️ सेव'):'📱 इसी फोन में सेव';
+async function initCloud(){
+  try{
+    if(!(window.claude&&claude.use))return;
+    const [user,db]=await Promise.all([claude.use('user'),claude.use('db')]);
+    if(!user||!db)return;
+    const id=await user.id(); const doc=db.collection('data/users/'+id).doc('gym');
+    const snap=await doc.get();
+    const ex=snap&&(typeof snap.exists==='function'?snap.exists():snap.exists);
+    const d=snap&&(typeof snap.data==='function'?snap.data():snap);
+    cloud=doc;
+    if(ex!==false&&d&&d.days&&(d.updatedAt||0)>(S.updatedAt||0)){S=Object.assign(S,d);try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}render()}
+    else if(Object.keys(S.days).length){save()}
+    const el=document.getElementById('sv');if(el)el.textContent=badge();
+  }catch(e){}
+}
+
+/* ===== evaluation ===== */
+const mult=()=>LEVELS[S.level][1];
+const tgt=ex=>({sets:ex.sets,reps:Math.max(1,Math.round(ex.reps*mult()))});
+const GL={E:['बेहतरीन 🔥','Excellent'],G:['गुड ✅','Good'],A:['औसत 😐','Average'],B:['बैड ❌','Bad']};
+const grade=r=>r>=1.2?'E':r>=1?'G':r>=0.7?'A':'B';
+const gbadge=g=>`<span class="badge g${g}">${GL[g][0]} (${GL[g][1]})</span>`;
+function evaluate(k){
+  const d=day(k), items=[], covered=new Set();
+  for(const ex of EX){
+    const arr=d.ex[ex.id]||[]; if(!arr.length)continue;
+    const t=tgt(ex), total=sum(arr), target=t.sets*t.reps, r=total/target;
+    items.push({ex,total,target,sets:arr.length,r,g:grade(r)}); covered.add(ex.g);
+  }
+  const exAvg=items.length?items.reduce((a,i)=>a+Math.min(i.r,1.2),0)/items.length:0;
+  const wt=d.weight||S.weight||60, pTarget=Math.round(wt*1.5), bads=BAD.filter(([id])=>d.bad[id]);
+  const health=[
+    {l:'💧 पानी',v:`${d.water} ग्लास`,t:'12 ग्लास',r:d.water/12,tip:'कम पानी = कम ताकत। सुबह उठते ही 2 ग्लास पियो।'},
+    {l:'😴 नींद',v:`${d.sleep} घंटे`,t:'7+ घंटे',r:d.sleep/7,tip:'मसल्स नींद में बनती हैं — 10 बजे तक सोने की कोशिश करो।'},
+    {l:'🥚 प्रोटीन',v:`${d.protein} ग्राम`,t:`${pTarget} ग्राम`,r:d.protein/pTarget,tip:'दूध, दही, दाल, अंडा, पनीर, सोया, चना बढ़ाओ।'},
+    {l:'🚫 गलत आदतें',v:bads.length?bads.map(b=>b[1]).join(', '):'कोई नहीं',t:'0',r:Math.max(0,1-0.34*bads.length),tip:'ये आदतें मेहनत पर पानी फेर देती हैं — इनसे दूर रहो।'}
+  ].map(h=>({...h,g:grade(h.r)}));
+  const hAvg=health.reduce((a,h)=>a+Math.min(h.r,1.2),0)/health.length;
+  const overall=0.6*exAvg+0.4*hAvg, og=items.length?grade(overall):'B';
+  const missing=Object.keys(GROUPS).filter(x=>x!=='cardio'&&!covered.has(x)).map(x=>GROUPS[x]);
+  const tips=[];
+  if(!items.length)tips.push('आज कोई कसरत नहीं हुई। कम से कम 15 मिनट करो — शुरुआत सबसे मुश्किल होती है।');
+  items.filter(i=>i.g==='B'||i.g==='A').forEach(i=>tips.push(`${i.ex.n}: ${i.total}/${i.target} ${i.ex.u==='सेकंड'?'सेकंड':'रेप्स'} — ${i.target-i.total} और करने थे।`));
+  if(items.length&&missing.length)tips.push('आज ये हिस्से छूटे: '+missing.join(', ')+'। कल इन्हें जोड़ो।');
+  health.filter(h=>h.g==='B'||h.g==='A').forEach(h=>tips.push(h.l+' — '+h.tip));
+  return {items,health,og,overall:Math.round(overall*100),tips,at:Date.now()};
+}
+const OMSG={E:'आज तूने कमाल कर दिया! ऐसे ही चलता रहा तो रिज़ल्ट जल्दी दिखेगा।',G:'अच्छा दिन रहा। रोज़ ऐसा ही करो — टिके रहना ही असली राज़ है।',A:'बीच का दिन रहा। थोड़ा और ज़ोर लगाओ, कल बेहतर कर सकते हो।',B:'आज का दिन अच्छा नहीं रहा। कोई बात नहीं — कल फिर शुरू करो, पर बहाने मत बनाओ।'};
+
+/* ===== views ===== */
+function render(){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('act',b.dataset.tab===tab));
+  document.getElementById('app').innerHTML=({ex:vEx,health:vHealth,res:vRes,hist:vHist})[tab]();
+  setup3D();
+}
+function head(){return `<div class="row sp"><div><h1>🏋️ बॉडी बिल्डर</h1><div class="sub">${fmt(TODAY)} <span id="sv">${badge()}</span></div></div></div>`}
+
+function exCard(ex){
+  const d=day(), arr=d.ex[ex.id]||[], t=tgt(ex), tot=sum(arr), pct=Math.min(100,100*tot/(t.sets*t.reps));
+  const q=encodeURIComponent(ex.en+' exercise');
+  return `<div class="card"><div class="row sp"><h2>${esc(ex.n)}</h2><span class="sub">${GROUPS[ex.g]}</span></div>
+  <canvas class="c3d" data-ex="${ex.id}" width="660" height="380" aria-label="${esc(ex.n)} 3D मॉडल"></canvas><div class="cap3">🧍 3D बॉडी — उंगली से घुमाओ • 🔴 लाल = इस कसरत में काम करने वाली मसल</div></div>
+  <div class="sub" style="margin-top:6px">💪 ${esc(ex.m)} • 🧰 ${esc(ex.eq)}</div>
+  <details><summary>कैसे करें? / फोटो-वीडियो देखो</summary><ul>${ex.st.map(s=>`<li>${esc(s)}</li>`).join('')}</ul><div class="note" style="margin-top:6px">⚠️ ${esc(ex.tip)}</div>
+  <a class="lk" href="https://www.google.com/search?tbm=isch&q=${q}" target="_blank" rel="noopener">🔎 असली फोटो देखो</a> • <a class="lk" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener">▶️ वीडियो देखो</a></details>
+  <div class="row sp" style="margin-top:8px"><b>टारगेट: ${t.sets} सेट × ${t.reps} ${ex.u}</b><b>${tot}/${t.sets*t.reps}</b></div>
+  <div class="bar" style="margin:6px 0"><i style="width:${pct}%"></i></div>
+  <div>${arr.map((r,i)=>`<span class="chip">सेट ${i+1}: ${r}<b data-rm="${ex.id}" data-i="${i}">✕</b></span>`).join('')}</div>
+  <div class="row" style="margin-top:6px"><input id="in_${ex.id}" type="number" inputmode="numeric" placeholder="इस सेट में कितने ${ex.u}?" value="${t.reps}"><button class="pri" data-add="${ex.id}">+ सेट</button></div></div>`;
+}
+function vEx(){
+  const list=EX.filter(e=>grp==='all'||e.g===grp);
+  return head()+`<div class="sub">हर कसरत की तस्वीर, तरीका और आज की गिनती — सब यहीं।</div>
+  <div class="row sp wrap" style="margin-top:8px"><span class="sub">स्तर:</span>${Object.entries(LEVELS).map(([k,v])=>`<button class="sm ${S.level===k?'on':''}" data-lvl="${k}">${v[0]}</button>`).join('')}</div>
+  <div class="chips"><button class="sm ${grp==='all'?'on':''}" data-grp="all">सब</button>${Object.entries(GROUPS).map(([k,v])=>`<button class="sm ${grp===k?'on':''}" data-grp="${k}">${v}</button>`).join('')}</div>
+  ${list.map(exCard).join('')}
+  <button class="pri" style="width:100%" data-tab="health">आगे: सेहत भरो →</button>`;
+}
+function vHealth(){
+  const d=day();
+  return head()+`<div class="card"><h2>🩺 आज की सेहत</h2>
+   <div class="grid2"><div><label class="f">आज का वज़न (kg)</label><input type="number" inputmode="decimal" data-f="weight" value="${d.weight||''}" placeholder="${S.weight}"></div>
+   <div><label class="f">नींद (घंटे)</label><input type="number" inputmode="decimal" data-f="sleep" value="${d.sleep||''}"></div>
+   <div><label class="f">प्रोटीन (ग्राम)</label><input type="number" inputmode="numeric" data-f="protein" value="${d.protein||''}"></div>
+   <div><label class="f">पानी (ग्लास)</label><div class="row"><button data-w="-1">−</button><b style="flex:1;text-align:center;font-size:20px">${d.water}</b><button class="pri" data-w="1">+</button></div></div></div></div>
+  <div class="card"><h2>🚫 गलत काम</h2><div class="sub">जो किया उस पर टिक लगाओ — सच बोलो।</div>
+   ${BAD.map(([id,t])=>`<label class="row" style="padding:7px 0"><input type="checkbox" data-bad="${id}" ${d.bad[id]?'checked':''}><span>${t}</span></label>`).join('')}</div>
+  <button class="pri" style="width:100%" data-tab="res">आगे: सबमिट और रिज़ल्ट →</button>`;
+}
+function resultCard(k,r){
+  return `<div class="card res res${r.og}"><div class="sub">${fmt(k)} का रिज़ल्ट</div><div class="big">${GL[r.og][0]}</div><div class="sub">${GL[r.og][1]} • स्कोर ${r.overall}/100</div>
+  <div style="margin-top:8px">${OMSG[r.og]}</div></div>
+  <div class="card"><h2>🏋️ कसरत का हिसाब</h2>${r.items.length?r.items.map(i=>`<div class="row sp" style="padding:6px 0;border-bottom:1px solid var(--line)"><div><b>${esc(i.ex.n)}</b><div class="sub">${i.sets} सेट • ${i.total}/${i.target} ${i.ex.u==='सेकंड'?'सेकंड':'रेप्स'}</div></div>${gbadge(i.g)}</div>`).join(''):'<div class="no sub">आज कोई कसरत नहीं की।</div>'}</div>
+  <div class="card"><h2>🩺 सेहत का हिसाब</h2>${r.health.map(h=>`<div class="row sp" style="padding:6px 0;border-bottom:1px solid var(--line)"><div><b>${h.l}</b><div class="sub">${esc(h.v)} (टारगेट ${h.t})</div></div>${gbadge(h.g)}</div>`).join('')}</div>
+  ${r.tips.length?`<div class="card"><h2>🎯 सुधार की राय</h2><ul class="t">${r.tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>`:'<div class="card"><h2>🎯 राय</h2>सब बढ़िया! कल टारगेट थोड़ा बढ़ाकर देखो।</div>'}`;
+}
+function vRes(){
+  const k=viewRes||TODAY, d=day(k), cnt=Object.keys(d.ex).filter(x=>(d.ex[x]||[]).length).length;
+  if(k!==TODAY)return head()+`<button class="sm" data-back="1">← आज पर वापस</button>`+(d.result?resultCard(k,d.result):'<div class="card">इस दिन का रिज़ल्ट सबमिट नहीं हुआ।</div>');
+  return head()+`<div class="card"><h2>सबमिट करने से पहले</h2><div class="sub">आज ${cnt} कसरत भरी हैं, पानी ${d.water} ग्लास, नींद ${d.sleep} घंटे।</div>
+   <button class="pri" style="width:100%;margin-top:10px" data-submit="1">✅ सबमिट करो — रिज़ल्ट देखो</button>
+   <button style="width:100%;margin-top:8px" data-skip="1">आज कसरत नहीं की</button></div>`+(d.submitted&&d.result?resultCard(TODAY,d.result):'');
+}
+function vHist(){
+  const ks=Object.keys(S.days).filter(k=>S.days[k].result).sort().reverse();
+  const last7=ks.slice(0,7), good=last7.filter(k=>['E','G'].includes(S.days[k].result.og)).length;
+  const tot={};for(const k in S.days)for(const id in S.days[k].ex)tot[id]=(tot[id]||0)+sum(S.days[k].ex[id]);
+  const top=EX.filter(e=>tot[e.id]).sort((a,b)=>tot[b.id]-tot[a.id]);
+  return head()+`<div class="card"><h2>📅 पिछले रिज़ल्ट</h2>${ks.length?`<div class="sub">पिछले ${last7.length} सबमिट में ${good} दिन गुड/बेहतरीन, ${last7.length-good} दिन औसत/बैड।</div>`:'<div class="sub">अभी कोई रिज़ल्ट नहीं। पहला सबमिट करो!</div>'}
+   ${ks.map(k=>{const r=S.days[k].result;return `<div class="hist" data-view="${k}"><div><b>${fmt(k)}</b><div class="sub">स्कोर ${r.overall}/100</div></div>${gbadge(r.og)}</div>`}).join('')}</div>
+  ${top.length?`<div class="card"><h2>🔢 अब तक कुल</h2>${top.map(e=>`<div class="row sp" style="padding:4px 0"><span>${esc(e.n)}</span><b>${tot[e.id]} ${e.u==='सेकंड'?'सेकंड':''}</b></div>`).join('')}</div>`:''}
+  <button class="sm" style="margin-top:8px" data-reset="1">सारा डेटा मिटाओ</button><div id="rb"></div>`;
+}
+
+/* ===== events ===== */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,[data-view],[data-rm]'); if(!t)return; const d=t.dataset;
+  if(d.tab){tab=d.tab;if(tab!=='res')viewRes=null;render();window.scrollTo(0,0);return}
+  if(d.grp){grp=d.grp;render();return}
+  if(d.lvl){S.level=d.lvl;save();render();return}
+  if(d.add){const inp=document.getElementById('in_'+d.add),r=Math.round(num(inp.value)||0);if(r<=0||r>1000)return;const dd=day();(dd.ex[d.add]=dd.ex[d.add]||[]).push(r);save();const y=window.scrollY;render();window.scrollTo(0,y);return}
+  if(d.rm){const dd=day();dd.ex[d.rm].splice(+d.i,1);save();const y=window.scrollY;render();window.scrollTo(0,y);return}
+  if(d.w){const dd=day();dd.water=Math.max(0,Math.min(40,dd.water+(+d.w)));save();render();return}
+  if(d.submit){const dd=day();dd.result=evaluate(TODAY);dd.submitted=true;save();render();return}
+  if(d.skip){const dd=day();dd.ex={};dd.result=evaluate(TODAY);dd.submitted=true;save();render();return}
+  if(d.view){viewRes=d.view;tab='res';render();window.scrollTo(0,0);return}
+  if(d.back){viewRes=null;render();return}
+  if(d.reset){document.getElementById('rb').innerHTML='<div class="card">पक्का? सारा हिसाब मिट जाएगा। <button class="sm" data-reset2="1">हाँ, मिटाओ</button></div>';return}
+  if(d.reset2){S={level:'reg',weight:60,days:{},updatedAt:Date.now()};save();render();return}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.f){const dd=day(),n=num(t.value);dd[t.dataset.f]=n===null?(t.dataset.f==='weight'?null:0):n;if(t.dataset.f==='weight'&&n)S.weight=n;save();return}
+  if(t.dataset.bad){day().bad[t.dataset.bad]=t.checked;save()}
+});
+render();
+initCloud();
+</script>
+</body>
+</html>
